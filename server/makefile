@@ -1,5 +1,5 @@
 GO_VERSION ?= 1.16
-IMAGE_NAME ?= reliablyhq/walkthrough-slo-http-server:dev
+IMAGE_NAME ?= ghcr.io/reliablyhq/walkthrough-slo-http-server:dev
 
 .PHONY: build
 build: install test
