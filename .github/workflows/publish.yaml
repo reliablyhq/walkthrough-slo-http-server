@@ -4,15 +4,32 @@ on:
   push
 
 env:
-  IMAGE_NAME: ghcr.io/reliablyhq/walkthrough-slo-http-server:${{ github.sha }}
+  GO_VERSION: 1.16
+  ROOT_IMAGE_NAME: ghcr.io/reliablyhq/walkthrough-slo-http-server
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    env:
+      LATEST_IMAGE_NAME: $ROOT_IMAGE_NAME:latest
     steps:
     - uses: actions/checkout@v2
-    - working-directory: server
+    - name: docker build
+      working-directory: server
+      run: docker build -t ${{ env.LATEST_IMAGE_NAME }} --build-arg GO_VERSION=${{ env.GO_VERSION }} .
+    - name: docker login
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
+    - name: docker push
+      env:
+        SHA_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
       run: |
-        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
-        make build-and-push-image
-        docker logout
+        docker tag ${{ env.LATEST_IMAGE_NAME }} ${{ env.SHA_IMAGE_NAME }}
+        docker push ${{ env.LATEST_IMAGE_NAME }}
+        docker push ${{ env.SHA_IMAGE_NAME }}
+    - name: docker push with version tag
+      if: startsWith(github.ref, 'ref/tags/')
+      env:
+        TAG_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:$(echo ${{ env.github.ref }} | cut -c10-)
+      run: |
+        docker tag ${{ env.LATEST_IMAGE_NAME }} ${{ env.TAG_IMAGE_NAME }}
+        docker push ${{ env.TAG_IMAGE_NAME }}
