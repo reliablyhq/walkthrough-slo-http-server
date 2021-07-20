@@ -14,8 +14,15 @@ jobs:
     - uses: actions/checkout@v2
     - working-directory: server
       run: |
-        docker build -t ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }} -t ${{ env.ROOT_IMAGE_NAME }}:latest --build-arg GO_VERSION=${{ env.GO_VERSION }} .
+        docker build -t ${{ env.ROOT_IMAGE_NAME }}:latest --build-arg GO_VERSION=${{ env.GO_VERSION }} .
     - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
-    - run: |
+    - run:
+        docker tag ${{ env.ROOT_IMAGE_NAME }}:latest ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
         docker push ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
         docker push ${{ env.ROOT_IMAGE_NAME }}:latest
+    - if: startsWith(github.ref, 'ref/tags/')
+      env:
+        VERSION_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:$(echo ${{ env.github.ref }} | cut -c10-)
+      run:
+        docker tag ${{ env.ROOT_IMAGE_NAME }}:latest ${{ env.VERSION_IMAGE_NAME }}
+        docker push ${{ env.VERSION_IMAGE_NAME }}
