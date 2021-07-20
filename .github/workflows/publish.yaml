@@ -11,7 +11,7 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     env:
-      LATEST_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:latest
+      LATEST_IMAGE_NAME: $ROOT_IMAGE_NAME:latest
     steps:
     - uses: actions/checkout@v2
     - name: docker build
