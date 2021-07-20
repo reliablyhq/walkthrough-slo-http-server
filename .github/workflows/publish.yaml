@@ -10,15 +10,12 @@ env:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME_SHA: ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
-      IMAGE_NAME_LATEST: ${{ env.ROOT_IMAGE_NAME }}:latest
     steps:
     - uses: actions/checkout@v2
     - working-directory: server
       run: |
-        docker build -t ${{ env.IMAGE_NAME_SHA }} -t ${{ env.IMAGE_NAME_LATEST }} --build-arg GO_VERSION=${{ env.GO_VERSION }} .
+        docker build -t ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }} -t ${{ env.ROOT_IMAGE_NAME }}:latest --build-arg GO_VERSION=${{ env.GO_VERSION }} .
     - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
     - run: |
-        docker push ${{ env.IMAGE_NAME_SHA }}
-        docker push ${{ env.IMAGE_NAME_LATEST }}
+        docker push ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.ROOT_IMAGE_NAME }}:latest
