@@ -21,7 +21,7 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
     - name: docker push
       env:
-        SHA_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
+        SHA_IMAGE_NAME: ${{ env.ROOT_IMAGE_NAME }}:$(echo ${{ github.sha }} | cut -c1-10)
       run: |
         docker tag ${{ env.LATEST_IMAGE_NAME }} ${{ env.SHA_IMAGE_NAME }}
         docker push ${{ env.LATEST_IMAGE_NAME }}
