@@ -11,14 +11,14 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME_SHA: ${ROOT_IMAGE_NAME}:${{ github.sha }}
-      IMAGE_NAME_LATEST: ${ROOT_IMAGE_NAME}:latest
+      IMAGE_NAME_SHA: ${{ env.ROOT_IMAGE_NAME }}:${{ github.sha }}
+      IMAGE_NAME_LATEST: ${{ env.ROOT_IMAGE_NAME }}:latest
     steps:
     - uses: actions/checkout@v2
     - working-directory: server
       run: |
-        docker build -t ${IMAGE_NAME_SHA} -t ${IMAGE_NAME_LATEST} --build-arg GO_VERSION=${GO_VERSION} .
+        docker build -t ${{ env.IMAGE_NAME_SHA }} -t ${{ env.IMAGE_NAME_LATEST }} --build-arg GO_VERSION=${{ env.GO_VERSION }} .
     - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
     - run: |
-        docker push ${IMAGE_NAME_SHA}
-        docker push ${IMAGE_NAME_LATEST}
+        docker push ${{ env.IMAGE_NAME_SHA }}
+        docker push ${{ env.IMAGE_NAME_LATEST }}
